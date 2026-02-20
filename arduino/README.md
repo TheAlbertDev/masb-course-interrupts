@@ -340,10 +340,6 @@ These are the elements that should be available for evaluation:
 - [ ] **Pull Requests**
       The different Pull Requests requested throughout the practice must also be present in your repository.
 
-### Rubric
-
-The rubric for evaluation can be found in CampusVirtual. We recommend you review it so you know exactly what will be evaluated and what is expected.
-
 ## Conclusions
 
 We have finished this first part of the second Arduino lab. In this part, we learned about interrupts for the first time, especially how to use interrupts with GPIOs. In future labs, as we explore new peripherals, we will always see how to configure and use their interrupts.

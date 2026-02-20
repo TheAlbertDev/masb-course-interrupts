@@ -26,6 +26,7 @@ If you are working from a fork of this repository, it is important to regularly 
 3. Merge the changes into your local main branch:
    ```sh
    git checkout main
+   git pull
    git merge upstream/main
    ```
 4. Push the updates to your fork:

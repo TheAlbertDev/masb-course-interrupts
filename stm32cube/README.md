@@ -248,6 +248,29 @@ Now, include `app.h` in `main.c`:
 ...
 ```
 
+If you compile now, you will get an error. The compiler does not know where the definitions of our `setup` and `loop` functions are (our `app.c` file). You need to add the file path to the compiler configuration file.
+
+##### Adding Files to CMakeLists.txt
+
+The `CMakeLists.txt` file is used to collect all the project information (paths to source files, compiler installation paths, paths to folders containing header files, etc.). From this file, CMake generates a build launch file which, once run, performs the compilation. We need to add the path to our new `app.c` file in `CMakeLists.txt`. To do this, open the `CMakeLists.txt` file located at the root of the project (be careful to open the correct one, as there may be more than one), and look for `# Add sources to executable`. In that section, add the file path:
+
+```cmake
+...
+
+# Add sources to executable
+target_sources(${CMAKE_PROJECT_NAME} PRIVATE
+    # Add user sources here
+    ${CMAKE_SOURCE_DIR}/Core/Src/app.c
+)
+
+...
+```
+
+We have used the CMake variable `CMAKE_SOURCE_DIR` to obtain the project path directly, so the indicated path will work even if we move the project folder. That’s all you need to do.
+
+> [!NOTE]
+> If you’re wondering whether you need to do the same for the `app.h` file, you don’t. Header files (`.h`) are not specified by their file path, but rather by the path to the folder containing them. Since the `Core/Inc` folder is already included by default, there’s nothing else you need to do.
+
 Compile and check that everything works correctly. If it does, make a commit, push your changes, and create a Pull Request to the main branch. Wait for the test results. If there are any issues, fix them, and once all tests pass, merge the Pull Request.
 
 > [!IMPORTANT]

@@ -2,10 +2,10 @@
 SILENCE = @
 
 #---- Outputs ----#
-COMPONENT_NAME = stm32cube_interrupts
+COMPONENT_NAME = stm32cube_challenge
 
 #--- Inputs ----#
-PROJECT_HOME_DIR = ../../../../../stm32cube/workspace/interrupts
+PROJECT_HOME_DIR = ../../../../../stm32cube/workspace/challenge
 ifeq "$(CPPUTEST_HOME)" ""
 $(error The environment variable CPPUTEST_HOME is not set. \
 Set it to where cpputest is installed)
@@ -35,7 +35,7 @@ SRC_FILES += $(PROJECT_HOME_DIR)/Core/Src/app.c
 #
 # TEST_SRC_FILES specifies individual test files to build.
 TEST_SRC_FILES += ./all_tests.cpp
-TEST_SRC_FILES += ./interrupts.test.cpp
+TEST_SRC_FILES += ./challenge.test.cpp
 
 # TEST_SRC_DIRS, builds everything in the directory
 # TEST_SRC_DIRS += tests/printf-spy

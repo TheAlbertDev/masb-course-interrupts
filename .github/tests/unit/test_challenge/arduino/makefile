@@ -19,7 +19,7 @@ endif
 # production code at link time.
 #
 # SRC_FILES specifies individual production
-SRC_FILES += $(PROJECT_HOME_DIR)/Core/Src/app.c
+SRC_FILES += $(PROJECT_HOME_DIR)/src/main.cpp
 
 #
 # SRC_DIRS specifies directories containing
@@ -56,6 +56,7 @@ CPPUTEST_USE_EXTENSIONS = Y
 # containing directory
 INCLUDE_DIRS += $(CPPUTEST_HOME)/include
 INCLUDE_DIRS += $(CPPUTEST_HOME)/include/Platforms/Gcc
+INCLUDE_DIRS += $(PROJECT_HOME_DIR)
 INCLUDE_DIRS += .
 INCLUDE_DIRS += ./mocks
 

@@ -22,7 +22,8 @@ TEST(Interrupts, Toggle_LED_on_interrupt_loop) {
         .expectOneCall("HAL_GPIO_WritePin")
         .withParameter("GPIOx", LED_GPIO_Port)
         .withParameter("GPIO_Pin", LED_Pin)
-        .withParameter("PinState", (stateLED) ? GPIO_PIN_SET : GPIO_PIN_RESET);
+        .withParameter("PinState",
+                       (i % 2 == 0) ? GPIO_PIN_RESET : GPIO_PIN_SET);
 
     loop();
 

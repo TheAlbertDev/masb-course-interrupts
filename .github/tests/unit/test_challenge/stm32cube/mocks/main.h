@@ -4,7 +4,7 @@
 #include <stdint.h>
 
 #define LED_GPIO_Port ((GPIO_TypeDef *)0x40020000)
-#define LED_Pin 0x0020;
+#define LED_Pin 0x0020
 
 typedef uint32_t GPIO_TypeDef;
 typedef uint32_t HAL_StatusTypeDef;

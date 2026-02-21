@@ -8,6 +8,7 @@
 
 typedef uint32_t GPIO_TypeDef;
 typedef uint32_t HAL_StatusTypeDef;
+typedef uint32_t GPIO_PinState;
 
 HAL_StatusTypeDef HAL_Init(void);
 void SystemClock_Config(void);
@@ -16,6 +17,9 @@ void MX_USART2_UART_Init(void);
 
 uint32_t HAL_GetTick(void);
 void HAL_GPIO_TogglePin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin);
+GPIO_PinState HAL_GPIO_ReadPin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin);
+void HAL_GPIO_WritePin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin,
+                       GPIO_PinState PinState);
 void HAL_Delay(uint32_t Delay);
 
 void SPY_setCurrentTicks(uint32_t ticks);

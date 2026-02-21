@@ -1,12 +1,12 @@
 #include "CppUTest/TestHarness.h"
 #include "CppUTestExt/MockSupport.h"
 
-#include "main.h"
 #include <stdexcept>
 #include <stdio.h>
 
 // STM32Cube app functions prototypes
 extern "C" {
+#include "main.h"
 extern void app(void);
 extern void loop(void);
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);

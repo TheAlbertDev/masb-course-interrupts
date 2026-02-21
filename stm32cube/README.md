@@ -148,12 +148,13 @@ This emulates the Arduino structure. For blinking an LED, nothing is needed at t
 For the `loop` function, add the following:
 
 ```c
+uint32_t previousMillis = 0; // ms elapsed in
+
 void setup(void) {}
 
 void loop(void) {
   const uint32_t periodMillis = 1000; // period between LED toggles
   uint32_t currentMillis = 0;         // current ms
-  uint32_t previousMillis = 0;        // ms elapsed in
 
   currentMillis = HAL_GetTick(); // current ms
 
@@ -174,12 +175,13 @@ If you try to compile now, you will get errors in `app.c` because the compiler d
 ```diff
 + #include "main.h"
 
+uint32_t previousMillis = 0; // ms elapsed in
+
 void setup(void) {}
 
 void loop(void) {
   const uint32_t periodMillis = 1000; // period between LED toggles
   uint32_t currentMillis = 0;         // current ms
-  uint32_t previousMillis = 0;        // ms elapsed in
 
   currentMillis = HAL_GetTick(); // current ms
 

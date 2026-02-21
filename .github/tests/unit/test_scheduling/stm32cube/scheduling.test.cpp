@@ -6,8 +6,10 @@
 #include <stdio.h>
 
 // STM32Cube app functions prototypes
+extern "C" {
 extern void app(void);
 extern void loop(void);
+}
 
 TEST_GROUP(Scheduling){};
 

@@ -1,99 +1,74 @@
 #include "CppUTest/TestHarness.h"
 #include "CppUTestExt/MockSupport.h"
 
+#include "main.h"
 #include <stdexcept>
 #include <stdio.h>
-#include "Arduino.h"
 
-// Arduino main functions prototypes
-extern void setup(void);
+// STM32Cube app functions prototypes
+extern void app(void);
 extern void loop(void);
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
 
-callback_function_t interruptCallback = nullptr;
+TEST_GROUP(Challenge){};
 
-TEST_GROUP(Challenge){
-    // clang-format off
-    void setup()
-    {
-        mock()
-            .expectOneCall("attachInterrupt")
-            .withParameter("pin", 23)
-            .withParameter("mode", FALLING)
-            .ignoreOtherParameters();
-            
-        mock().ignoreOtherCalls();
-        
-        ::setup();
+TEST(Challenge, Toggle_LED_blinking_on_interrupt_loop) {
+  uint32_t millis = 0;
 
-        // Store the interrupt callback for later use in tests
-        interruptCallback = SPY_getStoredInterruptCallback();
+  // No blink
+  for (int i = 0; i < 5; ++i) {
+    mock().expectNoCall("HAL_GPIO_ReadPin");
+    mock().expectNoCall("HAL_Delay");
 
-        mock().checkExpectations();
-        mock().clear();
-    }
-// clang-format on
-}
-;
+    mock().ignoreOtherCalls();
 
-TEST(Challenge, Toggle_LED_blinking_on_interrupt_loop)
-{
-    uint32_t millis = 0;
+    SPY_setCurrentTicks(millis);
 
-    // No blink
-    for (int i = 0; i < 5; ++i)
-    {
-        mock().expectNoCall("digitalRead");
-        mock().expectNoCall("delay");
+    loop();
 
-        mock().ignoreOtherCalls();
+    millis += 1000;
 
-        SPY_setCurrentMillis(millis);
+    mock().checkExpectations();
+    mock().clear();
+  }
 
-        loop();
+  HAL_GPIO_EXTI_Callback(); // Simulate the interrupt by calling the ISR
+                            // directly
 
-        millis += 1000;
+  // Blink
+  for (int i = 0; i < 5; ++i) {
+    mock().expectNoCall("HAL_GPIO_ReadPin");
+    mock().expectNoCall("HAL_Delay");
 
-        mock().checkExpectations();
-        mock().clear();
-    }
+    mock().ignoreOtherCalls();
 
-    interruptCallback(); // Simulate the interrupt by calling the ISR directly
+    SPY_setCurrentTicks(millis);
 
-    // Blink
-    for (int i = 0; i < 5; ++i)
-    {
-        mock().expectNoCall("digitalRead");
-        mock().expectNoCall("delay");
+    loop();
 
-        mock().ignoreOtherCalls();
+    millis += 1000;
 
-        SPY_setCurrentMillis(millis);
+    mock().checkExpectations();
+    mock().clear();
+  }
 
-        loop();
+  HAL_GPIO_EXTI_Callback(); // Simulate the interrupt by calling the ISR
+                            // directly
 
-        millis += 1000;
+  // No blink
+  for (int i = 0; i < 5; ++i) {
+    mock().expectNoCall("HAL_GPIO_ReadPin");
+    mock().expectNoCall("HAL_Delay");
 
-        mock().checkExpectations();
-        mock().clear();
-    }
+    mock().ignoreOtherCalls();
 
-    interruptCallback(); // Simulate the interrupt by calling the ISR directly
+    SPY_setCurrentTicks(millis);
 
-    // No blink
-    for (int i = 0; i < 5; ++i)
-    {
-        mock().expectNoCall("digitalRead");
-        mock().expectNoCall("delay");
+    loop();
 
-        mock().ignoreOtherCalls();
+    millis += 1000;
 
-        SPY_setCurrentMillis(millis);
-
-        loop();
-
-        millis += 1000;
-
-        mock().checkExpectations();
-        mock().clear();
-    }
+    mock().checkExpectations();
+    mock().clear();
+  }
 }

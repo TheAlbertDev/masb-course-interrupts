@@ -2,10 +2,10 @@
 SILENCE = @
 
 #---- Outputs ----#
-COMPONENT_NAME = arduino_challenge
+COMPONENT_NAME = stm32cube_scheduling
 
 #--- Inputs ----#
-PROJECT_HOME_DIR = ../../../../../arduino/workspace/challenge
+PROJECT_HOME_DIR = ../../../../../stm32cube/workspace/scheduling
 ifeq "$(CPPUTEST_HOME)" ""
 $(error The environment variable CPPUTEST_HOME is not set. \
 Set it to where cpputest is installed)
@@ -35,7 +35,7 @@ SRC_FILES += $(PROJECT_HOME_DIR)/Core/Src/app.c
 #
 # TEST_SRC_FILES specifies individual test files to build.
 TEST_SRC_FILES += ./all_tests.cpp
-TEST_SRC_FILES += ./challenge.test.cpp
+TEST_SRC_FILES += ./scheduling.test.cpp
 
 # TEST_SRC_DIRS, builds everything in the directory
 # TEST_SRC_DIRS += tests/printf-spy

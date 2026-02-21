@@ -2,18 +2,18 @@
 
 <img align="left" src="https://img.shields.io/badge/Lab_session-2--B-yellow"><img align="left" src="https://img.shields.io/badge/Environment-STM32Cube-blue"><img align="left" src="https://img.shields.io/badge/Estimated_duration-2.5 h-green"></br>
 
-In this second part of the second practice, we are going to **migrate the Arduino code to STM32Cube**. This time, we will make the **LED blink without using the `HAL_Delay` function** and see how to **implement an interrupt for a GPIO** using the STM32CubeMX graphical tool. The great flexibility provided by low-level register programming makes implementing an interrupt more complicated than in Arduino. **More complicated does not mean difficult**, as we will see below. Moreover, we will also see that this greater freedom opens up more options for developing our applications.
+In this second part of the lab, we will **migrate the Arduino code to STM32Cube**. This time, we will make the **LED blink without using the `HAL_Delay` function** and learn how to **implement a GPIO interrupt** using the STM32CubeMX graphical tool. While low-level register programming in STM32Cube offers greater flexibility than Arduino, it can make interrupt implementation seem more complex. However, **more complex does not mean more difficult**—as you will see, the process is manageable and opens up new possibilities for application development.
 
 ## Objectives
 
-- Implementing interrupts on digital pins with STM32Cube.
-- Alternatives to implementations based on the `HAL_Delay` function.
+- Implement interrupts on digital pins using STM32Cube.
+- Explore alternatives to using the `HAL_Delay` function for timing.
 
 ## Procedure
 
 ### "_Blink the LED, HAL_"
 
-Let's first create a Git branch for development called `stm32cube-scheduling`. Below are the commands one last time.
+First, create a Git branch for development called `stm32cube-scheduling`. Use the following commands:
 
 ```bash
 git switch main
@@ -21,13 +21,11 @@ git pull
 git switch -c stm32cube-scheduling
 ```
 
-Next, we create an STM32Cube project called `scheduling`. You know how and where to do this by now 😉
+Next, create an STM32Cube project named `scheduling`. (You should already be familiar with this process.)
 
-We will configure pin `PA5` as a GPIO output and label it as `LED`. Save the **microcontroller configuration file** and **generate the code**.
+Configure pin `PA5` as a GPIO output and label it as `LED`. Save the **microcontroller configuration file** and **generate the code**.
 
-We already know the implementation strategy since we've used it in Arduino: instead of implementing _delays_ between LED state changes, we will **schedule those state changes**.
-
-We create the three variables we will use: `periodMillis`, `currentMillis`, and `previousMillis`. We declare them as global variables. Always make sure to **add the code where the code generator's comments indicate**!
+Our implementation strategy, similar to what we did in Arduino, is to **schedule the LED state changes** instead of using delays. We will use three variables: `periodMillis`, `currentMillis`, and `previousMillis`. Initially, declare them as global variables. Always ensure you **add code where the code generator's comments indicate**!
 
 ```c
 ...
@@ -41,12 +39,12 @@ uint32_t previousMillis = 0;        // ms elapsed in the previous toggle
 ...
 ```
 
-Next, we implement the LED state change programming inside the _while loop_ of the `main` function. We will use the `HAL_GetTick` function, which is the equivalent of `millis` in Arduino.
+Next, implement the LED state change logic inside the _while loop_ of the `main` function. Use the `HAL_GetTick` function, which is equivalent to Arduino's `millis`.
 
 > [!NOTE]
-> Even though I mention the HAL functions to use, don't miss the opportunity to search for them in the manufacturer's HAL documentation. In your future professional life, especially during projects, you won’t be told which HAL functions to use, and you’ll need to know how to find them yourself. **Don’t miss the chance to practice searching through the documentation!**
+> Although the required HAL functions are mentioned here, take this opportunity to practice searching for them in the manufacturer's HAL documentation. In your future engineering projects, you will often need to find the appropriate functions yourself. **Developing this skill now is essential!**
 
-The code would look like this. You’ll notice "something" that may seem odd in the following code. Do it as instructed, and we’ll discuss what it is later.
+The code should look like this. You may notice something unusual in the following code—follow the instructions, and we will discuss it afterward.
 
 ```c
 ...
@@ -73,17 +71,17 @@ The code would look like this. You’ll notice "something" that may seem odd in 
 ...
 ```
 
-In case anyone is skeptical 😒, what should stand out to you is that **we've placed code in an improper location**. We did this on purpose so that later on, we can observe its consequences and how to fix them.
+If you are wondering, what should stand out is that **we have placed code in an improper location**. This is intentional, so you can observe the consequences and learn how to fix them.
 
-We build the code and debug. If everything is correct, we shouldn’t have any compilation errors, and the LED should be blinking every 1 second. If it works as expected, make a commit, and push your changes. Do not create the Pull Request yet.
+Build and debug the code. If everything is correct, there should be no compilation errors, and the LED should blink every 1 second. If it works as expected, make a commit and push your changes. Do not create the Pull Request yet.
 
-#### _Scope_ of Variables
+#### Variable Scope
 
-Before moving on to interrupts with the button, let’s look at an aspect related to the _scope_ of the variables we’ve created. Right now, we have all the variables declared as global variables. That means they are declared outside of any function, making them available to any function in the `main.c` file. The question is: **Is it necessary for the variables to be available to all functions?**
+Before moving on to button interrupts, let's discuss the _scope_ of the variables we created. Currently, all variables are declared as global, meaning they are accessible from any function in `main.c`. But is this necessary?
 
-I’ll answer that for you: **no**. All the variables we have are only used within the `main` function. **We should try to avoid giving variables a larger _scope_ than necessary. In other words, we should avoid declaring variables as global if we don’t need them to be.**
+The answer is **no**. These variables are only used within the `main` function. **You should avoid giving variables a broader scope than needed.** In other words, do not declare variables as global unless necessary.
 
-In this case, we will declare the variables inside the `main` function: we remove the declarations of the variables where they are now and **move them to the beginning of the `main` function**. It will look like this.
+In this case, move the variable declarations inside the `main` function, at its beginning. The code will look like this:
 
 ```c
 ...
@@ -103,17 +101,17 @@ In this case, we will declare the variables inside the `main` function: we remov
 ...
 ```
 
-We build again and check that everything works correctly.
+Build again and verify that everything works correctly.
 
-Make another commit for the changes related to the variable scope adjustment.
+Make another commit for the changes related to variable scope adjustment.
 
-#### Generate Code and Recover Version
+#### Generating Code and Restoring Versions
 
-Alright. Let's suppose we wanted to change some aspect of the microcontroller configuration. We would do this by modifying the configuration in STM32CubeMX and then clicking Save and Generate Code. In this case, we don't need to change anything, but go ahead and click Generate Code as if you had modified something. We go to the `main.c` file and... ta-daáááán! ✨ The code disappeared because we placed it in the wrong spot. Let's quickly see how to recover it.
+Suppose you want to change some aspect of the microcontroller configuration. You would modify the configuration in STM32CubeMX, then click Save and Generate Code. In this example, you do not need to change anything, but try clicking Generate Code as if you had made a modification. Now, check the `main.c` file—notice that the code you added has disappeared because it was placed in the wrong location. Let's see how to recover it.
 
-There are a thousand and one scenarios where we might want to undo something: we've modified something and want to revert it to the version from the last _commit_, we've already made a _commit_ and want to undo it, we want to undo changes in many files, we want to undo changes in just one file, ... We need to keep this in mind because now we will see **how to manage one of those infinite scenarios: restoring the version of the last _commit_ of a single file**. This is our current scenario. We've made a _commit_, we've regenerated the code, the `main.c` file has been modified, and we want to discard the changes and leave it as it was in the last _commit_ (the one we made before regenerating the code).
+There are many scenarios where you might want to undo changes: perhaps you want to revert a file to its last committed version, undo a recent commit, or restore only a specific file. In our current scenario, you have made a commit, regenerated the code, and now want to discard changes in `main.c` to return it to its last committed state (before code regeneration).
 
-Well, the command is simple:
+The command is simple:
 
 ```bash
 git restore stm32cube/workspace/scheduling/Core/Src/main.c
@@ -125,63 +123,92 @@ The command to use is `git restore`. We simply need to specify, along with the c
 git restore .
 ```
 
-But it's much better to only restore what we need. If in our case we restored everything, we would lose the `.ioc` microcontroller configuration we just created, and we'd have to do it again.
+However, it is better to restore only what you need. If you restore everything, you may lose recent changes to other files, such as the `.ioc` microcontroller configuration.
 
-After running the `git restore` command, we go to `main.c` and see that the file has been restored to the last "_committed_" version. We fix the error and move the code to the correct location. We regenerate the code with STM32CubeMX so that it adds the necessary modifications to `main.c` and _solved_!
+After running the `git restore` command, check that `main.c` has been restored to its last committed version. Fix the error by moving your code to the correct location, then regenerate the code with STM32CubeMX so that your changes are preserved.
 
-If it works as expected, make a commit, push your changes, and create a Pull Request to the main branch. Wait for the test results. If there are any issues, fix them, and once all tests pass, merge the Pull Request.
+If it works as expected, make a commit. Next, let's organize the code in a way similar to Arduino, to avoid problems caused by placing code in the wrong locations.
 
-### Interrupts with STM32CubeMX
+#### Organizing Code: Setup and Loop
 
-Now, we are going to create an interrupt for the button on the EVB so that the LED state is toggled each time we press the button. First, create a git branch named `stm32cube-interrupts`, and then create a STM32Cube project named `interrupts`. Then, we set `PUSH_BUTTON` as the _label_ for pin `PC13`. Now, for the pin's function, **we don't choose `GPIO_Input`** as we did in the previous. We choose `GPIO_EXTI13`.
+The Arduino code structure is widely used because it provides a clear separation between initialization and main application logic. There is a `setup` function that runs once at the beginning, and a `loop` function that runs repeatedly. We will manually create these functions in a new file and call them from the `main` function. This approach keeps your application code separate from STM32Cube-generated code, making it easier to maintain and less prone to accidental overwrites during code generation.
 
-![](/.github/images/stm32cube-interrupt-config.png)
+##### Creating the Application File
 
-Next, we are going to enable the pin interrupt. We do this by going to `System view`, at the top of the interactive image of the microcontroller, and entering `NVIC` under the `System Core` column. In this window, we can see all the interrupts available based on the current configuration of the microcontroller.
+In the `Core/Src` folder (where `main.c` is located), create a new file called `app.c`. Add the following code:
 
-> [!NOTE]
-> Only interrupts that are available for a given configuration are shown. Interrupts for peripherals that are not enabled or used will not appear. If we enabled them, new interrupts would show up.
+```c
+void setup(void) {}
 
-We check the `Enabled` box for the `EXTI line[15:10] interrupts`. **This interrupt is common to pins 10 through 15**. Let's take a moment to explain how GPIO interrupts work: EXTI.
+void loop(void) {}
+```
 
-![](/.github/images/stm32cube-nvic-config.png)
+This emulates the Arduino structure. For blinking an LED, nothing is needed at the start, so `setup` is empty. However, we include it for completeness and future use.
 
-#### EXTI Interrupts
+For the `loop` function, add the following:
 
-The [documentation](https://www.st.com/content/ccc/resource/technical/document/reference_manual/5d/b1/ef/b2/a1/66/40/80/DM00096844.pdf/files/DM00096844.pdf/jcr:content/translations/en.DM00096844.pdf) of the microcontroller describes how the interrupt module for GPIOs, called EXTI, works. If you want (and should) take a look at it, the description of the module can be found on page 202 of the [reference manual](https://www.st.com/content/ccc/resource/technical/document/reference_manual/5d/b1/ef/b2/a1/66/40/80/DM00096844.pdf/files/DM00096844.pdf/jcr:content/translations/en.DM00096844.pdf).
+```c
+void setup(void) {}
 
-The module generates up to 23 interrupt signals or IRQs: `EXTI[0:22]`. **All pins with the same number, regardless of the port, share the same IRQ**. For example, all pins labeled `0` (`PA0`, `PB0`, `PC0`, etc.) share the same IRQ: `EXTI0`. The other IRQs in the EXTI module behave the same way. Conclusion: **We cannot trigger an interrupt on two different pins if they share the same number**. Examples of interrupt combinations **without issues**: `PA1` and `PB4`, `PC4` and `PC3`, or `PA2` and `PD1`. Examples of interrupt combinations **with issues**: `PA1` and `PB1`, `PC5` and `PD5`, or `PA7` and `PE7`. We can enable interrupts on one or more pins, but there should not be more than one interrupt for a given pin number, regardless of the port.
+void loop(void) {
+  const uint32_t periodMillis = 1000; // period between LED toggles
+  uint32_t currentMillis = 0;         // current ms
+  uint32_t previousMillis = 0;        // ms elapsed in
 
-![](/.github/images/exti.png)
+  currentMillis = HAL_GetTick(); // current ms
 
-> Image from [STMicroelectronics](https://www.st.com/content/ccc/resource/technical/document/reference_manual/5d/b1/ef/b2/a1/66/40/80/DM00096844.pdf/files/DM00096844.pdf/jcr:content/translations/en.DM00096844.pdf).
+  if (currentMillis - previousMillis >=
+      periodMillis) { // if the desired period has passed
 
-Finally, we can take a look at Table 38 of the [document](https://www.st.com/content/ccc/resource/technical/document/reference_manual/5d/b1/ef/b2/a1/66/40/80/DM00096844.pdf/files/DM00096844.pdf/jcr:content/translations/en.DM00096844.pdf), where the interrupt vectors are listed. We see that `EXTI0`, `EXTI1`, and `EXTI2`, for example, have their own interrupt vector. However, **signals `EXTI` from 10 to 15 share an interrupt vector**. This means that in the first cases, we will have an ISR for a single pin, whereas in the second case, there will be one ISR for six pins. It will be **our task**, within this last common ISR for six pins, **to determine which IRQ/EXTI triggered the interrupt** in the program code and act accordingly.
+    previousMillis =
+        currentMillis; // store the ms elapsed since the start of the program
 
-#### Looking for the _Callback_...
+    // and toggle the LED
+    HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+  }
+}
+```
 
-We begin by looking at what needs to be implemented in the `main` function. As in Arduino, we will simply create a boolean variable `stateLED` which we will use to control the LED through the `HAL_GPIO_WritePin` function.
+If you try to compile now, you will get errors in `app.c` because the compiler does not know about functions like `HAL_GPIO_TogglePin`, the value of `LED_GPIO_Port`, or the type `uint32_t`. To fix this, include `main.h` at the top of `app.c` (as is already done in `main.c`). All necessary declarations are available in `main.h`.
 
-Later, in a button interrupt, we will invert the value of the boolean variable. Here's what the code will look like within the `main` function in the `main.c` file.
+```diff
++ #include "main.h"
+
+void setup(void) {}
+
+void loop(void) {
+  const uint32_t periodMillis = 1000; // period between LED toggles
+  uint32_t currentMillis = 0;         // current ms
+  uint32_t previousMillis = 0;        // ms elapsed in
+
+  currentMillis = HAL_GetTick(); // current ms
+
+  if (currentMillis - previousMillis >=
+      periodMillis) { // if the desired period has passed
+
+    previousMillis =
+        currentMillis; // store the ms elapsed since the start of the program
+
+    // and toggle the LED
+    HAL_GPIO_TogglePin(LED_GPIO_Port, LED_Pin);
+  }
+}
+```
+
+Now your application code is much cleaner and easier to maintain than if it were all in `main.c`.
+
+##### Calling `setup` and `loop` from `main`
+
+Next, call these functions from `main.c`. First, clean up the `main` function by removing any code you have moved to `setup` and `loop`. Then, just before the while loop, call `setup()`, and inside the while loop, call `loop()`:
 
 ```c
 ...
 
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
-#include <stdbool.h>
-/* USER CODE END Includes */
-
-...
-
-  /* USER CODE BEGIN 2 */
-  bool stateLED = false;
-  /* USER CODE END 2 */
-
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  setup();
   while (1) {
-    HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, stateLED);
+    loop();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -191,14 +218,97 @@ Later, in a button interrupt, we will invert the value of the boolean variable. 
 ...
 ```
 
-Now it's time to see how/where STM32CubeMX implements the interrupts... Hold on to your seat...
+If you try to compile now, the compiler will complain that these functions are not declared. To fix this, create a header file `app.h` with the function prototypes, and include it in `main.h`.
+
+##### Creating the App Header File
+
+Create a file named `app.h` in the `Core/Inc` folder, next to `main.h`. Add the following:
+
+```c
+#ifndef APP_H__
+#define APP_H__
+
+void setup(void);
+void loop(void);
+
+#endif /* APP_H__ */
+```
+
+As you can see, there are the prototypes for our functions. But there's more. The first two lines and the last one form an include guard. What is this for? Well, includes are used to tell the compiler about the existence of functions, variables, variable types, etc. But what happens if we need to use that include in several files at once? The compiler would receive the information multiple times and would complain, for example, that the `setup` function already exists. The way to solve this is with include guards. If you look, the include guard is an `if`. If the macro `APP_H__` doesn't exist, it creates it and returns the prototypes. If a second file includes `app.h`, since the macro `APP_H__` will already exist, it won't return the prototypes again. Very smart, right?
+
+Now, include `app.h` in `main.c`:
+
+```c
+...
+
+/* USER CODE BEGIN Includes */
+#include "app.h"
+/* USER CODE END Includes */
+
+...
+```
+
+Compile and check that everything works correctly. If it does, make a commit, push your changes, and create a Pull Request to the main branch. Wait for the test results. If there are any issues, fix them, and once all tests pass, merge the Pull Request.
+
+> [!IMPORTANT]
+> From now on, use this code organization for all STM32Cube projects.
+
+### Interrupts with STM32CubeMX
+
+Now, let's create an interrupt for the button on the evaluation board (EVB) so that the LED toggles each time the button is pressed. First, create a git branch named `stm32cube-interrupts`, and then create an STM32Cube project named `interrupts`. Set `PUSH_BUTTON` as the label for pin `PC13`. For the pin's function, **do not choose `GPIO_Input`** as before. Instead, select `GPIO_EXTI13`.
+
+![](/.github/images/stm32cube-interrupt-config.png)
+
+Next, enable the pin interrupt. Go to `System view` at the top of the STM32CubeMX interface, and select `NVIC` under the `System Core` column. Here, you can see all interrupts available for the current microcontroller configuration.
 
 > [!NOTE]
-> In the HAL documentation, the functions or _callbacks_ that need to be used for each interrupt and module are listed directly. Here, we'll manually search for those _callbacks_, but in the future, we'll go straight to the documentation to find them.
+> Only interrupts available for the current configuration are shown. Interrupts for peripherals that are not enabled will not appear. If you enable more peripherals, new interrupts will show up.
+
+Check the `Enabled` box for the `EXTI line[15:10] interrupts`. **This interrupt is shared by pins 10 through 15**. Let's take a moment to explain how GPIO interrupts work using EXTI.
+
+![](/.github/images/stm32cube-nvic-config.png)
+
+#### EXTI Interrupts
+
+The [microcontroller documentation](https://www.st.com/content/ccc/resource/technical/document/reference_manual/5d/b1/ef/b2/a1/66/40/80/DM00096844.pdf/files/DM00096844.pdf/jcr:content/translations/en.DM00096844.pdf) describes how the EXTI (External Interrupt) module for GPIOs works. You are encouraged to read about it—see page 202 of the [reference manual](https://www.st.com/content/ccc/resource/technical/document/reference_manual/5d/b1/ef/b2/a1/66/40/80/DM00096844.pdf/files/DM00096844.pdf/jcr:content/translations/en.DM00096844.pdf).
+
+The EXTI module generates up to 23 interrupt signals (IRQs): `EXTI[0:22]`. **All pins with the same number, regardless of port, share the same IRQ**. For example, all pins labeled `0` (`PA0`, `PB0`, `PC0`, etc.) share the same IRQ: `EXTI0`. The same applies to other pin numbers. Therefore, **you cannot trigger interrupts on two different pins if they share the same number**.
+
+Examples of valid interrupt combinations: `PA1` and `PB4`, `PC4` and `PC3`, or `PA2` and `PD1`.
+Examples of problematic combinations: `PA1` and `PB1`, `PC5` and `PD5`, or `PA7` and `PE7`.
+You can enable interrupts on multiple pins, but there should not be more than one interrupt for a given pin number, regardless of port.
+
+![](/.github/images/exti.png | width=100)
+
+> Image from [STMicroelectronics](https://www.st.com/content/ccc/resource/technical/document/reference_manual/5d/b1/ef/b2/a1/66/40/80/DM00096844.pdf/files/DM00096844.pdf/jcr:content/translations/en.DM00096844.pdf).
+
+Finally, look at Table 38 of the [reference manual](https://www.st.com/content/ccc/resource/technical/document/reference_manual/5d/b1/ef/b2/a1/66/40/80/DM00096844.pdf/files/DM00096844.pdf/jcr:content/translations/en.DM00096844.pdf), which lists the interrupt vectors. `EXTI0`, `EXTI1`, and `EXTI2` each have their own interrupt vector. However, **EXTI signals from 10 to 15 share a single interrupt vector**. This means that for pins 10–15, there is one ISR (Interrupt Service Routine) for all six pins. **It is your responsibility, within this ISR, to determine which pin triggered the interrupt and handle it accordingly.**
+
+#### Finding the _Callback_ Function
+
+Let's see what needs to be implemented in `app.c`. As in Arduino, we will create a boolean variable `stateLED` to control the LED using the `HAL_GPIO_WritePin` function.
+
+Later, in the button interrupt, we will invert the value of this boolean variable. Here is what the code looks like in `app.c`:
+
+```c
+#include "main.h"
+#include <stdbool.h>
+
+bool stateLED = false;
+
+void setup(void) {}
+
+void loop(void) { HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, stateLED); }
+```
+
+Now, let's see how and where STM32CubeMX implements interrupts.
+
+> [!NOTE]
+> The HAL documentation lists the functions or _callbacks_ to use for each interrupt and module. Here, we will manually search for these callbacks, but in the future, you should consult the documentation directly.
 >
 > A _callback_ is simply a function called from an ISR.
 
-We will start by going to the file `stm32f4xx_it.c`, which you will find in the same folder as the `main.c` file. At the very bottom of this file, we have the function `EXTI15_10_IRQHandler`. **The code comments are the ones that indicate that this is the function we are looking for.**
+Start by opening the file `stm32f4xx_it.c` (in the same folder as `main.c`). At the bottom of this file, you will find the function `EXTI15_10_IRQHandler`. **The code comments indicate that this is the function you are looking for.**
 
 ```c
 ...
@@ -227,7 +337,7 @@ void EXTI15_10_IRQHandler(void)
 ...
 ```
 
-This function is executed when an interrupt occurs on any of the pins numbered from 10 to 15, and, of course, the interrupts need to be enabled. Inside, we have the function `HAL_GPIO_EXTI_IRQHandler`. If we click on it while pressing <kbd>CTRL</kbd> or <kbd>⌘</kbd>, we can go to the file `stm32f4xx_hal_gpio.c` and see the definition of this function.
+This function is executed when an interrupt occurs on any of the pins numbered 10 to 15 (provided the interrupts are enabled). Inside, it calls the function `HAL_GPIO_EXTI_IRQHandler`. If you follow this function (using <kbd>CTRL</kbd> or <kbd>⌘</kbd> + click), you will find its definition in `stm32f4xx_hal_gpio.c`.
 
 ```c
 ...
@@ -250,7 +360,7 @@ void HAL_GPIO_EXTI_IRQHandler(uint16_t GPIO_Pin)
 ...
 ```
 
-There we find the function `HAL_GPIO_EXTI_Callback`. If we click on it while pressing <kbd>CTRL</kbd> or <kbd>⌘</kbd>, it takes us to its definition (which is right below). This function `HAL_GPIO_EXTI_Callback` does nothing and has the **`__weak` qualifier**. This qualifier **allows us to write another function elsewhere with the same name, which will override this one**. This is the function we will implement for our interrupt.
+There, you will find the function `HAL_GPIO_EXTI_Callback`. If you follow this function, you will see its definition (just below). This function does nothing and is marked with the **`__weak` qualifier**. This means you can write your own function with the same name elsewhere, and it will override the weak version. This is the function you will implement for your interrupt.
 
 ```c
 ...
@@ -272,46 +382,57 @@ __weak void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 ...
 ```
 
-"But oh no! We're jumping from function to function without seeing anything!" I know... And the truth is... there's nothing to see! STM32CubeMX generates a series of functions that call each other and that's it. One might ask: "Why don't we call `HAL_GPIO_EXTI_Callback` directly?" STM32CubeMX uses this strategy of calling multiple functions to provide a higher level of abstraction to the code. (Do you remember what a code abstraction level is?) It's an advanced topic that's hard to grasp without prior experience in microcontroller programming, so we won't dive into it. But we should take 2 seconds to thank STM32CubeMX for doing this work for us 🙏
+You may wonder why STM32CubeMX uses this chain of function calls instead of calling `HAL_GPIO_EXTI_Callback` directly. This approach provides a higher level of abstraction, making the code more flexible and maintainable. For now, just appreciate that STM32CubeMX handles much of this complexity for you.
 
-As we just said, we are going to create the function `HAL_GPIO_EXTI_Callback`. We will create it in the file `main.c`. There, we toggle the value of the variable `stateLED`. Below is the code.
+Now, create the function `HAL_GPIO_EXTI_Callback` in `app.c`. In this function, toggle the value of `stateLED`:
 
 ```c
-...
+#include "main.h"
+#include <stdbool.h>
 
-/* USER CODE BEGIN 4 */
+bool stateLED = false;
+
+void setup(void) {}
+
+void loop(void) { HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, stateLED); }
+
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
   // function for the GPIO interrupt
 
   // toggle the LED state
   stateLED = !stateLED;
 }
-/* USER CODE END 4 */
-
-...
 ```
 
-Since we are using the variable `stateLED` in different functions, **we will make it a global variable**. Additionally, if we **modify** the variable `stateLED` from **different points in the program**, we will add the `volatile` qualifier to the variable.
+Since `stateLED` will be modified from different parts of the program (app code and interrupt), add the `volatile` qualifier to the variable:
 
 ```c
-...
+#include "main.h"
+#include <stdbool.h>
 
-/* USER CODE BEGIN PV */
 volatile bool stateLED = false;
-/* USER CODE END PV */
 
-...
+void setup(void) {}
+
+void loop(void) { HAL_GPIO_WritePin(LED_GPIO_Port, LED_Pin, stateLED); }
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
+  // function for the GPIO interrupt
+
+  // toggle the LED state
+  stateLED = !stateLED;
+}
 ```
 
-Remember to remove the old delcaration of `stateLED` just before the main while loop.
+Compile, debug, and test your code. Everything should work correctly.
 
-Perfect! We compile, debug, and test, and everything should be fine 👌🏻
-
-Since we have a working version of the code... You know...: make a commit, push your changes, and create a Pull Request to the main branch. Wait for the test results. If there are any issues, fix them, and once all tests pass, merge the Pull Request.
+Once you have a working version, make a commit, push your changes, and create a Pull Request to the main branch. Wait for the test results. If there are any issues, fix them, and once all tests pass, merge the Pull Request.
 
 ## Challenge
 
-Just like with Arduino: make the LED toggle between off and blinking (every 500 ms) using the B1 button interrupt, without using the `HAL_Delay` and `HAL_GPIO_ReadPin` functions. There should be no restriction on when or how long B1 is pressed. It should work smoothly 😎
+As in the Arduino example: make the LED toggle between off and blinking (every 500 ms) using the B1 button interrupt, **without using the `HAL_Delay` or `HAL_GPIO_ReadPin` functions**. There should be no restriction on when or how long B1 is pressed. The system should work smoothly.
+
+Remember to use the setup/loop code organization.
 
 For the challenge, create a git branch named `stm32cube-challenge` and a project named `challenge`.
 
@@ -319,21 +440,16 @@ For the challenge, create a git branch named `stm32cube-challenge` and a project
 
 ### Deliverables
 
-These are the elements that should be available for evaluation:
+The following elements are required for evaluation:
 
-- [ ] **Commits**
-      Your remote GitHub repository must contain at least the following required commits: LED blinking, LED turning on and off with the button, and the challenge solution.
-
-- [ ] **Challenge**
-      The challenge must be solved and included with its own commit.
-
-- [ ] **Pull Requests**
-      The different Pull Requests requested throughout the practice must also be present in your repository.
+- [ ] **Commits**: Your remote GitHub repository must contain at least the following commits: LED blinking, LED toggling with the button, and the challenge solution.
+- [ ] **Challenge**: The challenge must be solved and included with its own commit.
+- [ ] **Pull Requests**: All requested Pull Requests throughout the lab must be present in your repository.
 
 ## Conclusions
 
-In this practice, we learned how to program events at the register level using the `HAL_GetTick` function. This way, we can avoid blocking the program execution during wait times created with `HAL_Delay`.
+In this lab, you learned how to schedule events at the register level using the `HAL_GetTick` function, allowing you to avoid blocking program execution with `HAL_Delay`.
 
-We also saw how to create an interrupt for a GPIO with STM32CubeMX and how it implements them. Using the interrupt, we avoid having to poll the button GPIO, saving microcontroller resources and ensuring that no button presses are missed, no matter how or when they occur.
+You also learned how to create a GPIO interrupt with STM32CubeMX and how the tool implements them. Using interrupts, you avoid polling the button GPIO, saving microcontroller resources and ensuring that no button presses are missed, regardless of timing.
 
-In the next practice, we will move on to another peripheral and explore the use of _timers_ or counters!
+In the next lab, we will explore another peripheral and learn about using _timers_ and counters!

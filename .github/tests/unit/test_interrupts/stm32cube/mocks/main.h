@@ -8,7 +8,7 @@
 
 typedef uint32_t GPIO_TypeDef;
 typedef uint32_t HAL_StatusTypeDef;
-typedef uint32_t GPIO_PinState;
+typedef enum { GPIO_PIN_RESET = 0, GPIO_PIN_SET } GPIO_PinState;
 
 HAL_StatusTypeDef HAL_Init(void);
 void SystemClock_Config(void);

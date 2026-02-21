@@ -301,7 +301,7 @@ Examples of valid interrupt combinations: `PA1` and `PB4`, `PC4` and `PC3`, or `
 Examples of problematic combinations: `PA1` and `PB1`, `PC5` and `PD5`, or `PA7` and `PE7`.
 You can enable interrupts on multiple pins, but there should not be more than one interrupt for a given pin number, regardless of port.
 
-![](/.github/images/exti.png | width=100)
+![](/.github/images/exti.png)
 
 > Image from [STMicroelectronics](https://www.st.com/content/ccc/resource/technical/document/reference_manual/5d/b1/ef/b2/a1/66/40/80/DM00096844.pdf/files/DM00096844.pdf/jcr:content/translations/en.DM00096844.pdf).
 

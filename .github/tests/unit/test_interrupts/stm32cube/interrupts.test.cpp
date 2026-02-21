@@ -30,7 +30,7 @@ TEST(Interrupts, Toggle_LED_on_interrupt_loop) {
     mock().checkExpectations();
     mock().clear();
 
-    HAL_GPIO_EXTI_Callback(); // Simulate the interrupt by calling the ISR
-                              // directly
+    HAL_GPIO_EXTI_Callback(PUSH_BUTTON_Pin); // Simulate the interrupt by
+                                             // calling the ISR directly
   }
 }

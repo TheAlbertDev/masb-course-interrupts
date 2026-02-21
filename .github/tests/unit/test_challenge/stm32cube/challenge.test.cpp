@@ -34,8 +34,8 @@ TEST(Challenge, Toggle_LED_blinking_on_interrupt_loop) {
     mock().clear();
   }
 
-  HAL_GPIO_EXTI_Callback(); // Simulate the interrupt by calling the ISR
-                            // directly
+  HAL_GPIO_EXTI_Callback(PUSH_BUTTON_Pin); // Simulate the interrupt by calling
+                                           // the ISR directly
 
   // Blink
   for (int i = 0; i < 5; ++i) {
@@ -54,8 +54,8 @@ TEST(Challenge, Toggle_LED_blinking_on_interrupt_loop) {
     mock().clear();
   }
 
-  HAL_GPIO_EXTI_Callback(); // Simulate the interrupt by calling the ISR
-                            // directly
+  HAL_GPIO_EXTI_Callback(PUSH_BUTTON_Pin); // Simulate the interrupt by calling
+                                           // the ISR directly
 
   // No blink
   for (int i = 0; i < 5; ++i) {

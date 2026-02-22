@@ -7,7 +7,7 @@
 // STM32Cube app functions prototypes
 extern "C" {
 #include "main.h"
-extern void app(void);
+extern void setup(void);
 extern void loop(void);
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin);
 }

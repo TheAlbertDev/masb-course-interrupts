@@ -10,6 +10,11 @@
 typedef uint32_t GPIO_TypeDef;
 typedef uint32_t HAL_StatusTypeDef;
 typedef enum { GPIO_PIN_RESET = 0, GPIO_PIN_SET } GPIO_PinState;
+typedef struct SPY_HAL_GPIO_PinState {
+  GPIO_TypeDef *GPIOx;
+  uint16_t GPIO_Pin;
+  GPIO_PinState PinState;
+} SPY_HAL_GPIO_PinState;
 
 HAL_StatusTypeDef HAL_Init(void);
 void SystemClock_Config(void);
@@ -23,6 +28,10 @@ void HAL_GPIO_WritePin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin,
                        GPIO_PinState PinState);
 void HAL_Delay(uint32_t Delay);
 
-void SPY_setCurrentTicks(uint32_t ticks);
+void SPY_HAL_setCurrentTicks(uint32_t ticks);
+void SPY_HAL_GPIO_WritePin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin,
+                           GPIO_PinState PinState);
+GPIO_PinState SPY_HAL_GPIO_ReadPin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin);
+void SPY_HAL_GPIO_TogglePin(GPIO_TypeDef *GPIOx, uint16_t GPIO_Pin);
 
 #endif /* Main_H__ */

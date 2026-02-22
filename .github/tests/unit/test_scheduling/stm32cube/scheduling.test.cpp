@@ -7,7 +7,7 @@
 // STM32Cube app functions prototypes
 extern "C" {
 #include "main.h"
-extern void app(void);
+extern void setup(void);
 extern void loop(void);
 }
 

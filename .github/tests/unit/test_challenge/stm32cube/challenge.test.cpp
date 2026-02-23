@@ -1,6 +1,5 @@
 #include "CppUTest/TestHarness.h"
 #include "CppUTestExt/MockSupport.h"
-#include "mocks/main.h"
 
 #include <stdexcept>
 #include <stdio.h>

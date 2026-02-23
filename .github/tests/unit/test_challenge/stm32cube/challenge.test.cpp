@@ -1,9 +1,6 @@
 #include "CppUTest/TestHarness.h"
 #include "CppUTestExt/MockSupport.h"
 
-#include <stdexcept>
-#include <stdio.h>
-
 // STM32Cube app functions prototypes
 extern "C" {
 #include "main.h"
@@ -60,10 +57,6 @@ TEST(Challenge, Toggle_LED_blinking_on_interrupt_loop) {
     mock().expectOneCall("HAL_GetTick").andReturnValue(elapsed_ms);
     mock().ignoreOtherCalls();
 
-    static int iteration = 0;
-    if (elapsed_ms == 5000)
-      iteration = 0;
-
     if (elapsed_ms % 500 == 0 && elapsed_ms > 5000) {
       expectedPinState =
           (expectedPinState == GPIO_PIN_SET) ? GPIO_PIN_RESET : GPIO_PIN_SET;
@@ -74,10 +67,6 @@ TEST(Challenge, Toggle_LED_blinking_on_interrupt_loop) {
     ::loop();
 
     GPIO_PinState actualPinState = SPY_HAL_GPIO_ReadPin(LED_GPIO_Port, LED_Pin);
-    printf("[ITER %d] elapsed_ms=%lu, expectedPinState=%d, actualPinState=%d\n",
-           iteration, (unsigned long)elapsed_ms, expectedPinState,
-           actualPinState);
-    iteration++;
 
     CHECK_EQUAL(expectedPinState, actualPinState);
 

@@ -54,13 +54,13 @@ TEST(Challenge, Toggle_LED_blinking_on_interrupt_loop) {
   mock().clear();
 
   // Blink
-  for (uint32_t elapsed_ms = 5000; elapsed_ms < 10000; elapsed_ms += 200) {
+  for (uint32_t elapsed_ms = 5000; elapsed_ms < 10000; elapsed_ms += 250) {
     mock().expectNoCall("HAL_GPIO_ReadPin");
     mock().expectNoCall("HAL_Delay");
     mock().expectOneCall("HAL_GetTick").andReturnValue(elapsed_ms);
     mock().ignoreOtherCalls();
 
-    if (elapsed_ms % 1000 == 0 && elapsed_ms > 5000) {
+    if (elapsed_ms % 500 == 0 && elapsed_ms > 5000) {
       expectedPinState =
           (expectedPinState == GPIO_PIN_SET) ? GPIO_PIN_RESET : GPIO_PIN_SET;
     }

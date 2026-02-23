@@ -43,6 +43,9 @@ TEST(Challenge, Toggle_LED_blinking_on_interrupt_loop) {
   mock().expectNoCall("HAL_GPIO_ReadPin");
   mock().expectNoCall("HAL_Delay");
   mock().ignoreOtherCalls();
+
+  SPY_HAL_setCurrentTicks(5000);
+
   HAL_GPIO_EXTI_Callback(PUSH_BUTTON_Pin); // Simulate the interrupt by calling
   // the ISR directly
   expectedPinState = GPIO_PIN_SET;
@@ -75,6 +78,9 @@ TEST(Challenge, Toggle_LED_blinking_on_interrupt_loop) {
   mock().expectNoCall("HAL_GPIO_ReadPin");
   mock().expectNoCall("HAL_Delay");
   mock().ignoreOtherCalls();
+
+  SPY_HAL_setCurrentTicks(10000);
+
   HAL_GPIO_EXTI_Callback(PUSH_BUTTON_Pin); // Simulate the interrupt by calling
   // the ISR directly
   expectedPinState = GPIO_PIN_RESET;

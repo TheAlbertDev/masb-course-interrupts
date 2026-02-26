@@ -323,7 +323,7 @@ Try the code. If it works, commit your changes, push, and create a Pull Request.
 
 Now, yes. Make the LED initially off and toggle its state between blinking (500 ms) and off using the button B1, without any influence from when the button is pressed or how long it is pressed. The challenge should be solved without any restrictions and without using the `delay` function.
 
-Implement the challenge in a branch called `challenge` and name the project `challenge`.
+Implement the challenge in a branch called `arduino-challenge` and name the project `challenge`.
 
 ## Evaluation
 

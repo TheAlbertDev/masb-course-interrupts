@@ -125,7 +125,7 @@ void loop()
     }
     else
     {                          // if not
-      digitalWrite(LED, HIGH); // turn it off
+      digitalWrite(LED, LOW); // turn it off
     }
   }
 }
